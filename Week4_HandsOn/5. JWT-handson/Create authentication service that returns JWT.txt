@@ -1,0 +1,114 @@
+package com.cognizant.springlearn.controller;
+
+import com.cognizant.springlearn.util.JwtUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+@RestController
+public class AuthController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
+
+    @GetMapping("/authenticate")
+    public ResponseEntity<?> authenticate(@RequestHeader("Authorization") String authHeader) {
+        LOGGER.info("START: authenticate");
+
+        // authHeader = "Basic base64(user:pwd)"
+        if (authHeader != null && authHeader.startsWith("Basic ")) {
+            String base64Credentials = authHeader.substring("Basic ".length());
+            byte[] credDecoded = Base64.getDecoder().decode(base64Credentials);
+            String credentials = new String(credDecoded, StandardCharsets.UTF_8);
+            // credentials = user:pwd
+            final String[] values = credentials.split(":", 2);
+
+            String username = values[0];
+            String password = values[1];
+
+            // Here you can validate the credentials (hardcoded for now)
+            if ("user".equals(username) && "pwd".equals(password)) {
+                String token = JwtUtil.generateToken(username);
+                LOGGER.info("END: authenticate");
+                return ResponseEntity.ok().body("{\"token\":\"" + token + "\"}");
+            } else {
+                return ResponseEntity.status(401).body("Invalid Credentials");
+            }
+        } else {
+            return ResponseEntity.status(400).body("Invalid Authorization header");
+        }
+    }
+}
+
+package com.cognizant.springlearn.util;
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+
+import java.util.Date;
+
+public class JwtUtil {
+
+    private static final String SECRET_KEY = "mysecretkey";
+
+    public static String generateToken(String username) {
+        long currentTimeMillis = System.currentTimeMillis();
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date(currentTimeMillis))
+                .setExpiration(new Date(currentTimeMillis + 1000 * 60 * 60)) // 1 hour
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .compact();
+    }
+}
+
+
+package com.cognizant.springlearn.security;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+
+@SuppressWarnings("deprecation")
+@Configuration
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+          .csrf().disable()
+          .authorizeRequests()
+          .antMatchers("/authenticate").permitAll()
+          .anyRequest().authenticated();
+    }
+}
+
+
+package com.cognizant.springlearn;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication(scanBasePackages = "com.cognizant.springlearn")
+public class SpringLearnApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(SpringLearnApplication.class, args);
+    }
+}
+
+
+curl -s -u user:pwd http://localhost:8090/authenticate
+Response:
+{"token":"<jwt-token>"}
+
+
+server.port=8090
+
+<dependency>
+  <groupId>io.jsonwebtoken</groupId>
+  <artifactId>jjwt</artifactId>
+  <version>0.9.1</version>
+</dependency>

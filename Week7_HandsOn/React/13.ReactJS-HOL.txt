@@ -1,0 +1,63 @@
+import { useState } from 'react'
+import BookDetails from './BookDetails'
+import BlogDetails from './BlogDetails'
+import CourseDetails from './CourseDetails'
+
+function App() {
+  const [type, setType] = useState("book")
+
+  let component
+  if (type === "book") {
+    component = <BookDetails />
+  } else if (type === "blog") {
+    component = <BlogDetails />
+  } else {
+    component = <CourseDetails />
+  }
+
+  return (
+    <div>
+      <button onClick={() => setType("book")}>Book</button>
+      <button onClick={() => setType("blog")}>Blog</button>
+      <button onClick={() => setType("course")}>Course</button>
+
+      {type === "book" && <BookDetails />}
+      {type === "blog" ? <BlogDetails /> : null}
+      {type === "course" && <CourseDetails />}
+
+      {component}
+    </div>
+  )
+}
+
+export default App;
+
+
+function BlogDetails() {
+  return (
+    <div>
+      <h2>Blog Details</h2>
+      <p>Title: Learning React</p>
+      <p>Author: Jane Smith</p>
+    </div>
+  )
+}
+
+export default BlogDetails
+
+function CourseDetails() {
+  return (
+    <div>
+      <h2>Course Details</h2>
+      <p>Course: Full Stack Development</p>
+      <p>Instructor: Alex Paul</p>
+    </div>
+  )
+}
+
+export default CourseDetails
+
+npx create-react-app bloggerapp
+cd bloggerapp
+
+

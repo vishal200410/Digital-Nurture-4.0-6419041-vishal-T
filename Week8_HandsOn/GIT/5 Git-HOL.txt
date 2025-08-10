@@ -1,0 +1,16 @@
+git branch -a
+
+You have already completed Git-T03-HOL_002 (from previous HOLs)
+
+Remote Git repo is already set up (GitHub/GitLab)
+
+Internet connection is active
+
+You’re on the master branch
+
+git pull origin master
+
+git push origin master
+
+git checkout master
+git status

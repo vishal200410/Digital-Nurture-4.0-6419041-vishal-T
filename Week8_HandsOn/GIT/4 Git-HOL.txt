@@ -1,0 +1,44 @@
+echo "*.orig" >> .gitignore
+git add .gitignore
+git commit -m "Added .orig files to .gitignore"
+
+git checkout master
+echo "<message>Hello from master branch</message>" > hello.xml
+git add hello.xml
+git commit -m "Added hello.xml in master branch with different content"
+
+git checkout -b GitWork
+echo "<message>Hello from GitWork branch</message>" > hello.xml
+git status
+git add hello.xml
+git commit -m "Added hello.xml in GitWork branch"
+
+git branch -d GitWork
+git log --oneline --graph --decorate
+
+git add hello.xml
+git commit -m "Resolved conflict in hello.xml while merging GitWork into master"
+
+git config --global diff.tool p4merge
+git config --global difftool.p4merge.cmd '"C:/Program Files/Perforce/p4merge.exe" "$LOCAL" "$REMOTE"'
+git merge GitWork
+
+Git and Git Bash installed
+
+Notepad++ and P4Merge installed
+
+A clean master branch in your local repository
+
+git mergetool
+P4Merge opens with:
+
+BASE (common ancestor)
+
+LOCAL (master)
+
+REMOTE (GitWork)
+
+git log --oneline --graph --decorate --all
+git diff master GitWork
+git difftool master GitWork
+
